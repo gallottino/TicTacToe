@@ -2,10 +2,10 @@
 #include <SFML/Graphics.hpp>
 
 #define BOX_SIZE 64
-#define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 256
+#define WINDOW_HEIGHT 256
 #define BOARD_WIDTH BOX_SIZE * 3
-#define BOARD_HEIGHT BOX_SIZE *4
+#define BOARD_HEIGHT BOX_SIZE * 3
 
 #define BOARD_ORIGIN_X WINDOW_WIDTH/2 - BOARD_WIDTH/2
 #define BOARD_ORIGIN_Y WINDOW_HEIGHT/2 - BOARD_HEIGHT/2
@@ -20,6 +20,7 @@ enum Turn{
 bool checkWin(Turn field[][3]);
 
 int main() {
+    bool end = false;
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "TicTacToe");
     sf::Texture board_texture,cross_texture,circle_texture;
     sf::Sprite board,cross,circle;
@@ -38,7 +39,7 @@ int main() {
     circle.setTexture(circle_texture);
     cross.setTexture(cross_texture);
     board.setTexture(board_texture);
-    board.setPosition(BOARD_ORIGIN_X,BOARD_ORIGIN_Y);
+    board.setPosition(BOARD_ORIGIN_X,BOARD_ORIGIN_X);
 
     while (window.isOpen())
     {
@@ -48,7 +49,16 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)){
+                end = false;
+                for(int i=0;i<3;i++){
+                    for(int j=0;j<3;j++){
+                        field[i][j] = VOID;
+                    }
+                }
+            }
+
+            if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !end){
                 int x = sf::Mouse::getPosition(window).x;
                 int y = sf::Mouse::getPosition(window).y;
 
@@ -65,6 +75,7 @@ int main() {
                         if(checkWin(field)){
                             if(turn == CROSS) std::cout<<"CROSS WIN!"<<std::endl;
                             else std::cout<<"CIRCLE WIN!"<<std::endl;
+                            end = true;
                         }
                         if(turn == CROSS) turn = CIRCLE;
                         else turn = CROSS;
@@ -96,6 +107,7 @@ int main() {
 
     return 0;
 }
+
 bool checkWin(Turn field[][3])
 {
     bool flag;
@@ -123,22 +135,22 @@ bool checkWin(Turn field[][3])
     }
 
 
-    flag = true;
-    bool flag2 = true;
+    bool flag_hor = true;
+    bool flag_ver = true;
     status_hor = field[0][0];
     status_ver = field[2][0];
     for(int i = 1 ;i < 3 ;i++){
         if(field[i][i] != status_hor || field[i][i] == VOID){
-            flag = false;
+            flag_hor = false;
             status_hor = VOID;
         }
 
         if(field[2-i][i] != status_ver || field[2-i][i] == VOID){
-            flag2 = false;
+            flag_ver = false;
             status_ver = VOID;
         }
     }
-    if(flag || flag2) return true;
+    if(flag_hor || flag_ver) return true;
     return false;
 }
 
